@@ -1,28 +1,35 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+'''信号処理
+周波数解析や周波数応答の関数
 '''
-@author: ari23 (Twitter: ari23ant)
-@date: 2020/01/12
-'''
+__author__  = 'ari23 (Twitter: ari23ant)'
+__version__ = '0.0.1'
+__date__    = '2020/03/06'
+__status__  = 'Development'
+
+import time
 import pandas as pd
 import numpy as np
 from scipy import signal
 from scipy import fftpack
 import matplotlib.pyplot as plt
-import seaborn as sns
+#import seaborn as sns
+#sns.set()
 
 
-def fft(array, fs, ylabel_name='Data', xlabel_name='Time'):
+def fft(array, fs, win='hanning', ylabel_name='Data', xlabel_name='Time'):
     '''
     MATLAB関数fftを参考
     この関数を呼んだあと、必ずplt.show()を叩くこと
-
     param
     -----
     array: array_like
         波形データ
     fs: float
         サンプリング周波数[Hz]
+    win: string
+        窓関数指定 デフォルト値は'hanning'
     ylabel_name: string
         出力するグラフの縦軸のラベル デフォルト値は'Data'
     xlabel_name: string
@@ -30,9 +37,18 @@ def fft(array, fs, ylabel_name='Data', xlabel_name='Time'):
     '''
     # 窓関数で波形を切り出す
     L = len(array)
-    #window = np.ones(L)    # 矩形窓
-    window = np.hanning(L)  # ハン窓
-    #window = np.hamming(L)  # ハミング窓
+    if win == 'hanning':
+        window = np.hanning(L)  # ハン窓
+    elif win == 'hamming':
+        window = np.hamming(L)  # ハミング窓
+    elif win == 'square':
+        window = np.ones(L)    # 矩形窓
+    else:
+        print('win is fault: ' + win)
+        print('use square window')
+        win = 'square'
+        window = np.ones(L)    # 矩形窓
+
     array_window = array * window
 
     # FFT計算
@@ -58,8 +74,7 @@ def fft(array, fs, ylabel_name='Data', xlabel_name='Time'):
     plt.subplot(4, 1, 2)
     plt.plot(array_window)
     plt.xlabel(xlabel_name)
-    #plt.ylabel('Data*han')
-    plt.ylabel('Data*hamming')
+    plt.ylabel(ylabel_name + '*' + win)
     plt.grid()
     # FFTプロット
     plt.subplot(4, 1, 3)
@@ -81,22 +96,25 @@ def nextpow2(n):  # MATLAB関数nextpow2
     m_i = np.ceil(m_f)
     return int(np.log2(2**m_i))
 
-def fvtool(b, fs, a=1, worN=8192):
+def fvtool(b, fs, a=1, worN=8192, fc1=None, fc2=None):
     '''
     MATLAB関数fvtoolを参考
     この関数を呼んだあと、必ずplt.show()を叩くこと
-
     param
     -----
-    b : array_like
+    b: array_like
         伝達関数の分子の係数
-    a : array_like
+    a: array_like
         伝達関数の分母の係数 デフォルト値は1
-    fs : float
+    fs: float
         サンプリング周波数[Hz]
-    worN : int
+    worN: int
         単位円の半円の分割数
         周波数に変換するときは w/pi*fn をする
+    fc1: float
+        周波数応答のグラフにカットオフ周波数などの印（縦線）を入れる
+    fc2: float
+        周波数応答のグラフにカットオフ周波数などの印（縦線）を入れる
     '''
     # ナイキスト周波数計算
     fn = fs / 2
@@ -116,7 +134,11 @@ def fvtool(b, fs, a=1, worN=8192):
     # 周波数応答プロット
     plt.subplot(2, 1, 1)
     plt.plot(x_freq_rspns, y_freq_rspns)
-    plt.ylim(-70, 2)  # MATLAB fvtool仕様
+    if fc1 is not None:
+        plt.plot([fc1, fc1], [y_freq_rspns.min(), y_freq_rspns.max()])
+    if fc2 is not None:
+        plt.plot([fc2, fc2], [y_freq_rspns.min(), y_freq_rspns.max()])
+    #plt.ylim(-70, 2)  # MATLAB fvtool仕様
     plt.ylabel('Amplitude [dB]')
     plt.grid()
     # 群遅延プロット
@@ -147,3 +169,9 @@ def make_KZ_filter(N, _times):
         f_KZ = np.convolve(f_KZ, f_MA, mode='full')
 
     return f_KZ
+
+def is_odd(num):
+    if num % 2 == 0:
+        return False
+    else:
+        return True
