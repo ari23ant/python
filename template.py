@@ -5,10 +5,11 @@ Pythonスクリプトテンプレート
 - 2019/10/07| テンプレート作成
 - 2020/01/14| IPythonおまじない修正とログ追加
 - 2020/02/14| versionとstatus追加、引数機能、リファクタリング
+- 2020/03/06| self.string→self.msgなどリファクタリング
 """
 __author__  = 'ari23(Twitter: ai23ant)'
-__version__ = '0.0.0'
-__date__    = '2020/02/14'
+__version__ = '0.0.4'
+__date__    = '2020/03/06'
 __status__  = 'Development'
 
 
@@ -22,10 +23,10 @@ import logging
 class Template:
 
     def __init__(self):
-        self.string = "Hello world!"
+        self.msg = "Hello world!"
 
     def Process(self):
-        print(self.string)
+        print(self.msg)
 
 if __name__ == '__main__':
     # IPython使用時のおまじない
@@ -84,5 +85,5 @@ if __name__ == '__main__':
     # ---------- Program End ---------- #
     end_time = time.perf_counter()
     execution_time = end_time - start_time
-    print('Execution Time: ' + str(execution_time) + 's')
+    print('\nExecution Time: ' + str(execution_time) + 's')
     print('----------  End  ----------')
