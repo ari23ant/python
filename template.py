@@ -8,10 +8,11 @@
 - 2020/03/06| self.string→self.msgなどリファクタリング
 - 2020/04/05| リファクタリング
 - 2020/06/02| plt.figure()があったら削除する機能追加
+- 2020/06/19| plt.figure()があったら削除する機能修正
 """
 __author__  = 'ari23(Twitter: @ari23ant)'
-__version__ = '0.0.6'
-__date__    = '2020/06/02'
+__version__ = '0.0.7'
+__date__    = '2020/06/19'
 __status__  = 'Development'
 
 #import os
@@ -33,12 +34,11 @@ class Template:
 if __name__ == '__main__':
     # IPython使用時のおまじない
     if get_ipython().__class__.__name__ == 'TerminalInteractiveShell':
-        # plt.fiugre()があったら削除
+        # plt.fiugre()を全削除
         import sys
         if 'matplotlib.pyplot' in sys.modules:
-            #import matplotlib.pyplot
-            #matplotlib.pyplot.close('all')
-            plt.close('all')
+            import matplotlib.pyplot
+            matplotlib.pyplot.close('all')
             print('close all figures')
         # IPython Resetコマンド
         get_ipython().magic('reset -sf')
