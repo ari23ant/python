@@ -1,12 +1,12 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """Signal processing plot functions.
 
-周波数解析や周波数応答の関数
+周波数解析や振幅特性の関数
 """
 __author__ = 'ari23 (Twitter: ari23ant)'
-__version__ = '0.2.8'
-__date__ = '2023/02/25'
+__version__ = '0.3.0'
+__date__ = '2023/03/02'
 __status__ = 'Development'
 
 import numpy as np
@@ -30,7 +30,7 @@ def plotfft(wave, fs, win='hanning', dB=True, vert=[], title='', ylabel='Wave', 
     dB: bool
         dBへの単位変換 Trueなら単位変換する
     vert: array_like
-        周波数応答のグラフに目印の縦線を入れる
+        振幅特性のグラフに目印の縦線を入れる
     title: string
         出力するグラフのタイトル
     ylabel: string
@@ -145,7 +145,7 @@ def plotiir(system, fs=None, fform='ba', dB=True, vert=[], title='', worN=512, s
     dB: bool
         dBへの単位変換 Trueなら単位変換する
     vert: array_like
-        周波数応答のグラフに目印の縦線を入れる
+        振幅特性のグラフに目印の縦線を入れる
     title: string
         出力するグラフのタイトル
     worN: int
@@ -168,7 +168,7 @@ def plotiir(system, fs=None, fform='ba', dB=True, vert=[], title='', worN=512, s
     if fform == 'ba':
         b, a = system  # ba(tf)
 
-        # 周波数応答
+        # 振幅特性
         w, h = signal.freqz(b, a, worN)
         x_freq_rspns = w * rad_to_freq
         if dB:
@@ -186,6 +186,7 @@ def plotiir(system, fs=None, fform='ba', dB=True, vert=[], title='', worN=512, s
         x_unit_circle = np.cos(theta)
         y_unit_circle = np.sin(theta)
         zeros, poles, k = signal.tf2zpk(*system)
+        # print(f'N={len(poles)}')
 
         # インパルス応答
         x_impluse = signal.unit_impulse(shape)
@@ -196,7 +197,7 @@ def plotiir(system, fs=None, fform='ba', dB=True, vert=[], title='', worN=512, s
     elif fform == 'sos':
         sos = system
 
-        # 周波数応答
+        # 振幅特性
         w, h = signal.sosfreqz(sos, worN)
         x_freq_rspns = w * rad_to_freq
         if dB:
@@ -214,6 +215,7 @@ def plotiir(system, fs=None, fform='ba', dB=True, vert=[], title='', worN=512, s
         x_unit_circle = np.cos(theta)
         y_unit_circle = np.sin(theta)
         zeros, poles, k = signal.sos2zpk(sos)
+        # print(f'N={len(poles)}')
 
         # インパルス応答
         x_impluse = signal.unit_impulse(shape)
@@ -224,7 +226,8 @@ def plotiir(system, fs=None, fform='ba', dB=True, vert=[], title='', worN=512, s
     else:
         return None
 
-    # y_gdの要素にゼロがあったら削除する（SciPyのバグ？）
+    # y_gdの要素にゼロがあったら削除する
+    # https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.group_delay.html#scipy.signal.group_delay
     zero_index = np.where(y_gd == 0.0, True, False)
     if zero_index.sum() > 0:
         print('Output of signal.group_delay has zero value and delete the elements.')
@@ -236,7 +239,7 @@ def plotiir(system, fs=None, fform='ba', dB=True, vert=[], title='', worN=512, s
     fig = plt.figure(figsize=(8, 10), tight_layout=True)
     fig.suptitle(title)
 
-    # --- 周波数応答
+    # --- 振幅特性
     ax = plt.subplot2grid((3, 2), (0, 0), colspan=2)
     ax.plot(x_freq_rspns, y_freq_rspns)
     if vert:
@@ -317,7 +320,7 @@ def plotfreqz(b, fs, a=1, worN=8192, vert=[], title=''):
         単位円の半円の分割数
         周波数に変換するときは w/pi*fn をする
     vert: array_like
-        周波数応答のグラフに目印の縦線を入れる
+        振幅特性のグラフに目印の縦線を入れる
     title: string
         出力するグラフのタイトル
     """
@@ -325,7 +328,7 @@ def plotfreqz(b, fs, a=1, worN=8192, vert=[], title=''):
     # ナイキスト周波数計算
     fn = fs / 2.0
 
-    # 周波数応答計算
+    # 振幅特性計算
     w, h = signal.freqz(b, a, worN)
     x_freq_rspns = w / np.pi * fn
     y_freq_rspns = _dB(abs(h))  # 複素数→デシベル変換
@@ -335,7 +338,8 @@ def plotfreqz(b, fs, a=1, worN=8192, vert=[], title=''):
     x_gd = w / np.pi * fn
     y_gd = gd
 
-    # y_gdの要素にゼロがあったら削除する（SciPyのバグ？）
+    # y_gdの要素にゼロがあったら削除する
+    # https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.group_delay.html#scipy.signal.group_delay
     zero_index = np.where(y_gd == 0.0, True, False)
     if zero_index.sum() > 0:
         print('Output of signal.group_delay has zero value and delete the elements.')
@@ -347,7 +351,7 @@ def plotfreqz(b, fs, a=1, worN=8192, vert=[], title=''):
     fig = plt.figure(figsize=(8, 6), tight_layout=True)
     fig.suptitle(title)
 
-    # 周波数応答
+    # 振幅特性
     ax = fig.add_subplot(2, 1, 1)
     ax.plot(x_freq_rspns, y_freq_rspns)
     if vert:
