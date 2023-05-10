@@ -242,7 +242,7 @@ def plotiir(system, fs=None, fform='ba', dB=True, vert=[], title='', worN=512, s
     # --- 振幅特性
     ax = plt.subplot2grid((3, 2), (0, 0), colspan=2)
     ax.plot(x_freq_rspns, y_freq_rspns)
-    if vert:
+    if vert is not None:
         for v in vert:
             ax.plot([v, v], [y_freq_rspns.min(), y_freq_rspns.max()], label=str(v)+'[Hz]')
         ax.legend()
@@ -354,7 +354,7 @@ def plotfreqz(b, fs, a=1, worN=8192, vert=[], title=''):
     # 振幅特性
     ax = fig.add_subplot(2, 1, 1)
     ax.plot(x_freq_rspns, y_freq_rspns)
-    if vert:
+    if vert is not None:
         for v in vert:
             ax.plot([v, v], [y_freq_rspns.min(), y_freq_rspns.max()], label=str(v)+'[Hz]')
         ax.legend()
@@ -364,7 +364,7 @@ def plotfreqz(b, fs, a=1, worN=8192, vert=[], title=''):
     # 群遅延
     ax = fig.add_subplot(2, 1, 2)
     ax.plot(x_gd, y_gd)
-    # ax.set_ylim(0, len(b))  # MATLAB fvtool仕様
+    ax.set_ylim(0, len(b))  # MATLAB fvtool仕様
     ax.set_xlabel('Frequency [Hz]')
     ax.set_ylabel('Group delay [samples]')
     ax.grid(visible=True)
